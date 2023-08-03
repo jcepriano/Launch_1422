@@ -50,16 +50,24 @@ namespace CaddyShackMVC.Controllers
         [Route("golfbags/{id:int}/edit")]
         public IActionResult Edit(int id)
         {
-            var golfBag = _context.GolfBags.Find(id);
+            var golfBag = _context.GolfBags
+                .Where(g => g.Id == id)
+                .Include(g => g.Clubs)
+                .FirstOrDefault();
+
             return View(golfBag);
         }
 
         [HttpPost]
         [Route("golfbags/{id:int}")]
-        public IActionResult Update(int id, GolfBag golfBag)
+        public IActionResult Update(Club club, int id)
         {
-            golfBag.Id = id;
-            _context.GolfBags.Update(golfBag);
+            var golfBag = _context.GolfBags
+                .Where(g => g.Id == id)
+                .Include(g => g.Clubs)
+                .FirstOrDefault();
+
+            golfBag.Clubs.Add(club);
             _context.SaveChanges();
 
             return RedirectToAction("show", new { id = golfBag.Id });
